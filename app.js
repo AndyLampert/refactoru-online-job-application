@@ -8,11 +8,18 @@ app.set('views', __dirname + '/views');
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser());
 
-var applicant = mongoose.model('Applicant', 
+// model (blueprint for what goes into the db, similar to a constructor)
+var Applicant = mongoose.model('Applicant', 
 	// instances of applicant will have a name property that is a string
 	{
-		name: String
+		name: String,
+		bio: String,
+		skills: String,
+		years: Number,
+		why: String
 	});
+
+
 
 mongoose.connect('mongodb://localhost/Andrew');
 
@@ -31,12 +38,23 @@ app.get('/success', function(req, res){
 });
 
 // creates and applicant
-app.get('/applicant', function(req, res){
+app.post('/applicant', function(req, res){
 	// Here is where you need to get the data
 	// from the post body and store it in the database
+	var data = req.body;
 
-	res.redirect('/success');
-
+	var newApplicant = new Applicant({
+		name: data.name,
+		bio: data.bio,
+		skills: data.skills,
+		years: data.years,
+		why: data.why
+	});
+	// sends request to mongodb and puts object into db
+	newApplicant.save(function(err, doc){
+		res.send(doc);
+	});
+	// res.send(data);
 });
 
 var server = app.listen(8441, function() {
